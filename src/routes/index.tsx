@@ -485,9 +485,17 @@ function Index() {
       if (existing && existing.length > 0) {
         list = recoverInterruptedShots(existing);
       } else {
-        setNote("Reading script and locking character designs…");
+        const mine = manualBible.trim();
+        setNote(
+          mine
+            ? "Reading script · using your character sheet…"
+            : "Reading script and locking character designs…",
+        );
         const res = await killable((signal) =>
-          analyze({ data: { script: sourceScript, ...stamp() }, signal }),
+          analyze({
+            data: { script: sourceScript, ...(mine ? { manualBible: mine } : {}), ...stamp() },
+            signal,
+          }),
         );
         b = res.bible;
         list = res.segments.map((s) => ({ ...s, status: "waiting" as const }));
