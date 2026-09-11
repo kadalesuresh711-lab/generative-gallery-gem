@@ -1380,11 +1380,21 @@ function Index() {
                       </span>
                       <button
                         type="button"
+                        title="Draw this panel again from the same prompt"
                         onClick={() => void retryOne(s.index)}
                         disabled={retrying.includes(s.index)}
                         className="border-2 border-foreground px-2 py-0.5 font-semibold uppercase hover:bg-foreground hover:text-background disabled:opacity-40"
                       >
                         Retry
+                      </button>
+                      <button
+                        type="button"
+                        title="Write a brand new prompt for this moment, then draw it"
+                        onClick={() => void retryOne(s.index, true)}
+                        disabled={retrying.includes(s.index)}
+                        className="border-2 border-foreground px-2 py-0.5 font-semibold uppercase hover:bg-foreground hover:text-background disabled:opacity-40"
+                      >
+                        Retry prompt
                       </button>
                     </span>
                   </div>
