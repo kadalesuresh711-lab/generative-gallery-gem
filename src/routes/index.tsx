@@ -1250,10 +1250,29 @@ function Index() {
               />
             </div>
             {bible && (
-              <details className="mt-4 text-sm">
+              <details className="mt-4 text-sm" open>
                 <summary className="cursor-pointer font-display font-bold uppercase">
                   Character consistency sheet (text only — never drawn)
                 </summary>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void copyText(bible, "bible")}
+                    className="border-2 border-foreground px-3 py-1 font-mono text-xs font-semibold uppercase hover:bg-foreground hover:text-background"
+                  >
+                    {copied === "bible" ? "Copied ✓" : "Copy sheet"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setManualBible(bible);
+                      setShowSheetEditor(true);
+                    }}
+                    className="border-2 border-foreground px-3 py-1 font-mono text-xs font-semibold uppercase hover:bg-foreground hover:text-background"
+                  >
+                    Edit as my sheet
+                  </button>
+                </div>
                 <pre className="mt-2 whitespace-pre-wrap font-mono text-xs text-muted-foreground">
                   {bible}
                 </pre>
