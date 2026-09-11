@@ -858,8 +858,11 @@ function Index() {
       shot: Shot,
       record: (i: number, next: Partial<Shot>) => void,
       slotBase: number,
+      /** True = throw the old prompt away and ask the writer for a new one. */
+      freshPrompt = false,
     ): Promise<boolean> => {
-      let prompt = hasPrompt(shot.prompt) ? (shot.prompt as string).trim() : undefined;
+      let prompt =
+        !freshPrompt && hasPrompt(shot.prompt) ? (shot.prompt as string).trim() : undefined;
       if (!prompt) {
         record(shot.index, { status: "prompting", error: undefined });
         try {
@@ -878,6 +881,11 @@ function Index() {
           prompt = hasPrompt(slot) ? (slot as string).trim() : undefined;
         } catch {
           prompt = undefined;
+        }
+        if (!prompt && freshPrompt && hasPrompt(shot.prompt)) {
+          // The writer is busy or rate limited: keep the panel's old prompt
+          // rather than losing it, and still re-roll the picture.
+          prompt = (shot.prompt as string).trim();
         }
         if (!prompt) {
           record(shot.index, { status: "error", error: "no prompt could be written" });
