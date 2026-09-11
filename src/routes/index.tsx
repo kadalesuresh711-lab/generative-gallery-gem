@@ -1175,6 +1175,62 @@ function Index() {
             placeholder="(0:00)पहली लाइन... (0:05)&#10;&#10;दूसरी लाइन... (0:09)"
             className="mt-3 w-full resize-y border-2 border-foreground bg-card p-4 font-mono text-sm outline-none focus:ring-4 focus:ring-ring"
           />
+          {/* Manual character sheet: the user's own fixed descriptions win
+              over the automatic ones, so looks stay exactly as they wrote. */}
+          <div className="mt-4 border-2 border-foreground bg-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-display text-sm font-bold uppercase">
+                My character sheet {manualBible.trim() ? "(in use)" : "(optional)"}
+              </span>
+              <span className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSheetEditor((v) => !v)}
+                  className="border-2 border-foreground px-3 py-1 font-mono text-xs font-semibold uppercase hover:bg-foreground hover:text-background"
+                >
+                  {showSheetEditor ? "Hide" : "Write / paste sheet"}
+                </button>
+                {manualBible.trim() && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void copyText(manualBible, "manual")}
+                      className="border-2 border-foreground px-3 py-1 font-mono text-xs font-semibold uppercase hover:bg-foreground hover:text-background"
+                    >
+                      {copied === "manual" ? "Copied ✓" : "Copy"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setManualBible("")}
+                      className="border-2 border-foreground px-3 py-1 font-mono text-xs font-semibold uppercase hover:bg-foreground hover:text-background"
+                    >
+                      Clear
+                    </button>
+                  </>
+                )}
+              </span>
+            </div>
+            {showSheetEditor && (
+              <>
+                <textarea
+                  value={manualBible}
+                  onChange={(e) => setManualBible(e.target.value)}
+                  rows={6}
+                  spellCheck={false}
+                  placeholder={
+                    "One line per character — Name: gender, age, hair, eyes, skin, build, exact clothing with colours.\n" +
+                    "Ravi: male, 17-year-old boy, messy jet-black hair, dark brown eyes, tan skin, thin build, faded grey school shirt, navy trousers\n" +
+                    "Place - Ravi's home: small brick village house, blue wooden door, clay-tiled roof, neem tree in the yard"
+                  }
+                  className="mt-3 w-full resize-y border-2 border-foreground bg-background p-3 font-mono text-xs outline-none focus:ring-4 focus:ring-ring"
+                />
+                <p className="mt-2 font-mono text-[11px] uppercase text-muted-foreground">
+                  When this box has text it replaces the automatic sheet for the next run.
+                </p>
+              </>
+            )}
+          </div>
+
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               disabled={busy || script.trim().length < 10}
