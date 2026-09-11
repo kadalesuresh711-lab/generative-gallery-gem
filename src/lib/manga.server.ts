@@ -893,7 +893,7 @@ export function parseBible(bible: string): { name: string; traits: string }[] {
       return { name, traits };
     })
     .filter((v): v is { name: string; traits: string } => v !== null)
-    .slice(0, 6);
+    .slice(0, 12);
 }
 
 /** Reads an explicit gender out of a bible line's traits. */
@@ -1008,9 +1008,19 @@ export function characterLock(prompt: string, bible?: string): string {
   const matched = entries.filter((e) => new RegExp(`\\b${escapeRe(e.name)}\\b`, "i").test(prompt));
   if (matched.length === 0) return "";
 
-  return `Appearance lock: ${matched
+  // The lock is the single strongest consistency tool we have: it repeats each
+  // named character's FIXED traits verbatim in every panel they appear in, and
+  // then forbids the three things that actually drifted between shots —
+  // clothing, gender and small facial/hair details.
+  const traits = matched
     .map((e) => `${e.name}: ${e.traits.replace(/\.$/, "")}`)
-    .join("; ")}.`;
+    .join("; ");
+  return (
+    `Appearance lock (identical in every panel): ${traits}. ` +
+    `Same exact outfit, same garment colours, same hairstyle and hair colour, same eye colour, ` +
+    `same skin tone, same face shape, same gender and same age for each named person — ` +
+    `never change, restyle, re-dress, re-age or swap the gender of a named character.`
+  );
 }
 
 /**
@@ -1078,9 +1088,12 @@ export function hasPeople(prompt: string, bible?: string): boolean {
  * the style words never name eyes or faces. Style is restated compactly at
  * the end, inside the T5 window.
  */
-const IMAGE_PROMPT_BUDGET = 1100;
-const SCENE_BUDGET = 620;
-const LOCK_BUDGET = 150;
+const IMAGE_PROMPT_BUDGET = 1500;
+const SCENE_BUDGET = 560;
+// The lock used to be clipped at 150 chars, which cut most characters' traits
+// (clothing colours sit at the END of a bible line) — that truncation is the
+// main reason outfits and minor looks drifted panel to panel.
+const LOCK_BUDGET = 520;
 
 /** Trims to a length without cutting mid-word. */
 function clip(s: string, max: number): string {
