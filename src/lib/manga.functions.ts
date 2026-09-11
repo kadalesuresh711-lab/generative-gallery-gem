@@ -15,7 +15,14 @@ const SegmentSchema = z.object({
 
 export const analyzeScript = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
-    z.object({ script: z.string().min(5), runAt: z.number().optional() }).parse(d),
+    z
+      .object({
+        script: z.string().min(5),
+        /** A sheet written by the user. When given, it REPLACES the auto one. */
+        manualBible: z.string().optional(),
+        runAt: z.number().optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data }) => {
     // Hanging up (Insta Kill, refresh, closed tab) aborts the upstream work
@@ -26,8 +33,11 @@ export const analyzeScript = createServerFn({ method: "POST" })
     if (segments.length === 0) {
       throw new Error("No timestamps found. Each line needs a time like 0:00, (0:00) or [0:00].");
     }
-    const bible = await buildCharacterBible(data.script);
-    return { segments, bible, engine: engineStatus() };
+    // A user-written sheet is authoritative: no text call, no model rewrite —
+    // exactly the lines the user typed are used as the appearance lock.
+    const manual = (data.manualBible ?? "").trim();
+    const bible = manual.length > 5 ? manual.slice(0, 6000) : await buildCharacterBible(data.script);
+    return { segments, bible, manual: manual.length > 5, engine: engineStatus() };
     }, signal);
   });
 
