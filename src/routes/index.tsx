@@ -443,6 +443,21 @@ function Index() {
     setShots((prev) => prev.map((s) => (s.index === index ? { ...s, ...next } : s)));
   }, []);
 
+  // The user's own sheet survives reloads.
+  useEffect(() => {
+    const saved = window.localStorage.getItem("manga.manualBible");
+    if (saved) {
+      setManualBible(saved);
+      setShowSheetEditor(true);
+    }
+  }, []);
+  useEffect(() => {
+    if (manualBible.trim()) window.localStorage.setItem("manga.manualBible", manualBible);
+    else window.localStorage.removeItem("manga.manualBible");
+  }, [manualBible]);
+
+
+
   /** Copies any text to the clipboard, with a clipboard-less fallback. */
   const copyText = useCallback(async (text: string, label: string) => {
     try {
