@@ -962,8 +962,13 @@ function Index() {
     }
   }
 
-  /** Re-rolls a single panel on a fresh seed, keeping its timestamp and prompt. */
-  async function retryOne(index: number) {
+  /**
+   * Re-rolls a single panel on a fresh seed.
+   *
+   * `freshPrompt` = the "Retry prompt" button: the panel's written prompt is
+   * thrown away and the writer describes that timestamp again before drawing.
+   */
+  async function retryOne(index: number, freshPrompt = false) {
     if (retrying.includes(index)) return;
     setRetrying((prev) => [...prev, index]);
     const key = scriptKey(script);
@@ -976,7 +981,7 @@ function Index() {
     try {
       const target = list.find((s) => s.index === index);
       if (!target) return;
-      await redrawShot(target, record, index + 1);
+      await redrawShot(target, record, index + 1, freshPrompt);
       await saveProgress(key, { script, bible, shots: list, state: "done" });
     } catch (e) {
       record(index, { status: "error", error: e instanceof Error ? e.message : String(e) });
