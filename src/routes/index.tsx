@@ -328,6 +328,10 @@ function Index() {
 
   const [script, setScript] = useState("");
   const [bible, setBible] = useState("");
+  /** A character sheet typed/pasted by the user. Overrides the automatic one. */
+  const [manualBible, setManualBible] = useState("");
+  const [showSheetEditor, setShowSheetEditor] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
   const [shots, setShots] = useState<Shot[]>([]);
   const [phase, setPhase] = useState<"idle" | "running" | "video" | "done" | "error">("idle");
   const [note, setNote] = useState("");
@@ -437,6 +441,24 @@ function Index() {
 
   const patch = useCallback((index: number, next: Partial<Shot>) => {
     setShots((prev) => prev.map((s) => (s.index === index ? { ...s, ...next } : s)));
+  }, []);
+
+  /** Copies any text to the clipboard, with a clipboard-less fallback. */
+  const copyText = useCallback(async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(label);
+    setTimeout(() => setCopied((c) => (c === label ? null : c)), 1600);
   }, []);
 
   /* ---------------------------------------------------------------- */
